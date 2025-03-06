@@ -42,12 +42,19 @@ func main() {
 
 		net, ok := list[ssid]
 		if !ok {
-			return c.JSON(http.StatusBadRequest, "ssid not exists")
+			net = nets.Network{
+				Ssid:     ssid,
+				Password: password,
+				Stored:   true,
+				RSSI:     -55,
+			}
+			list[ssid] = net
+			slog.Info(fmt.Sprintf("Add new network ssid [%s], pwd:[%s]", ssid, password))
+		} else {
+			net.Password = password
+			net.Stored = true
+			slog.Info(fmt.Sprintf("Update password for ssid [%s], pwd:[%s]", net.Ssid, password))
 		}
-		slog.Info(fmt.Sprintf("Update password for ssid [%s], pwd:[%s]", net.Ssid, password))
-
-		net.Password = password
-		net.Stored = true
 
 		// successful network connection
 		resp := nets.NetworkConnectResponse{
